@@ -22,4 +22,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     Page<Listing> findByStatusAndIsVerified(
             ListingStatus status, boolean isVerified, Pageable pageable);
+
+    List<Listing> findByStatusAndIsVerifiedOrderByCreatedAtDesc(
+            ListingStatus status, boolean isVerified);
 }
