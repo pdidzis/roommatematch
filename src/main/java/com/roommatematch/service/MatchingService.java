@@ -35,6 +35,7 @@ public class MatchingService {
     private final MatchRepository matchRepository;
     private final UserPreferencesRepository userPreferencesRepository;
     private final CompatibilityScorer compatibilityScorer;
+    private final NotificationService notificationService;
 
     public List<MatchResponse> findSuggestions(Long userId) {
         User currentUser = userRepository.findById(userId)
@@ -122,6 +123,14 @@ public class MatchingService {
         match = matchRepository.save(match);
         log.info("Match request created from user {} to user {}", requesterId, receiverId);
 
+        notificationService.createNotification(
+                receiver.getId(),
+                requester.getFirstName() + " wants to be your roommate!",
+                requester.getFirstName() + " " + requester.getLastName() + " sent you a match request.",
+                "MATCH_REQUEST",
+                match.getId()
+        );
+
         return mapToMatchResponse(match, receiver, result);
     }
 
@@ -142,6 +151,24 @@ public class MatchingService {
         match = matchRepository.save(match);
 
         log.info("Match {} {} by user {}", matchId, accept ? "accepted" : "declined", currentUserId);
+
+        if (accept) {
+            notificationService.createNotification(
+                    match.getRequester().getId(),
+                    "Match accepted! 🎊",
+                    match.getReceiver().getFirstName() + " accepted your roommate request. Start chatting!",
+                    "MATCH_ACCEPTED",
+                    match.getId()
+            );
+        } else {
+            notificationService.createNotification(
+                    match.getRequester().getId(),
+                    "Match update",
+                    match.getReceiver().getFirstName() + " has declined your match request.",
+                    "MATCH_DECLINED",
+                    match.getId()
+            );
+        }
 
         User otherUser = match.getRequester();
         CompatibilityResult result = compatibilityScorer.calculateScore(

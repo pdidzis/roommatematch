@@ -55,4 +55,12 @@ public class ListingResponse {
     private String createdAt;
 
     private Long daysUntilAvailable;
+
+    @Builder.Default
+    private boolean currentUserInterested = false;
+
+    @Builder.Default
+    private boolean bothRoommatesInterested = false;
+
+    private Long landlordChatId;
 }

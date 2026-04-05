@@ -11,6 +11,7 @@ import com.roommatematch.model.enums.ListingStatus;
 import com.roommatematch.model.enums.UserRole;
 import com.roommatematch.repository.ListingRepository;
 import com.roommatematch.repository.UserRepository;
+import com.roommatematch.util.InputSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,8 @@ public class ListingService {
 
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final InputSanitizer sanitizer;
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
             "image/jpeg",
@@ -60,9 +63,9 @@ public class ListingService {
 
         Listing listing = Listing.builder()
                 .landlord(landlord)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .address(request.getAddress())
+                .title(sanitizer.sanitize(request.getTitle()))
+                .description(sanitizer.sanitize(request.getDescription()))
+                .address(sanitizer.sanitize(request.getAddress()))
                 .city(request.getCity())
                 .country(request.getCountry())
                 .monthlyRent(request.getMonthlyRent())
@@ -176,6 +179,14 @@ public class ListingService {
 
         Listing verifiedListing = listingRepository.save(listing);
         log.info("Listing verified by admin {}: {}", adminId, listingId);
+
+        notificationService.createNotification(
+                listing.getLandlord().getId(),
+                "Listing verified! ✅",
+                "Your listing '" + listing.getTitle() + "' is now live on RoommateMatch.",
+                "LISTING_VERIFIED",
+                listing.getId()
+        );
 
         return mapToListingResponse(verifiedListing);
     }

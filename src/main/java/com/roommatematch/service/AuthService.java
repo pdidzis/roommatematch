@@ -11,6 +11,7 @@ import com.roommatematch.repository.UserPreferencesRepository;
 import com.roommatematch.repository.UserRepository;
 import com.roommatematch.security.CustomUserDetailsService;
 import com.roommatematch.security.JwtUtil;
+import com.roommatematch.util.InputSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final NotificationService notificationService;
+    private final InputSanitizer sanitizer;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -41,9 +44,9 @@ public class AuthService {
         User user = User.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .phoneNumber(request.getPhoneNumber())
+                .firstName(sanitizer.sanitize(request.getFirstName()))
+                .lastName(sanitizer.sanitize(request.getLastName()))
+                .phoneNumber(sanitizer.sanitizeOrNull(request.getPhoneNumber()))
                 .role(request.getRole())
                 .isVerified(false)
                 .isActive(true)
@@ -60,6 +63,14 @@ public class AuthService {
         String token = jwtUtil.generateToken(userDetails);
 
         log.info("New user registered: {}", user.getEmail());
+
+        notificationService.createNotification(
+                user.getId(),
+                "Welcome to RoommateMatch! 🎉",
+                "Your account has been created. Complete your preferences to start finding roommates.",
+                "WELCOME",
+                null
+        );
 
         return AuthResponse.builder()
                 .token(token)

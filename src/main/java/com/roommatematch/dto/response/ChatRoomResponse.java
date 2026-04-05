@@ -20,4 +20,12 @@ public class ChatRoomResponse {
     private String lastMessageTime;
 
     private Integer unreadCount;
+
+    private String chatType;
+
+    private String listingTitle;
+
+    private Long listingId;
+
+    private String landlordName;
 }

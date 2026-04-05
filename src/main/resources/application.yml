@@ -24,8 +24,26 @@ app:
     secret: ${JWT_SECRET}
     expiration: 86400000
 
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: true
+
+logging:
+  level:
+    org.springdoc: DEBUG
+    com.roommatematch: DEBUG
+    org.springframework.web: DEBUG
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    try-it-out-enabled: true
   api-docs:
     path: /api-docs
+  packages-to-scan: com.roommatematch.controller
+  show-actuator: false

@@ -8,47 +8,32 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "chat_rooms")
-public class ChatRoom {
+@Table(name = "listing_interests",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "listing_id"}))
+public class ListingInterest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "participant1_id")
-    private User participant1;
-
-    @ManyToOne
-    @JoinColumn(name = "participant2_id")
-    private User participant2;
-
-    @Column(name = "chat_type")
-    @Builder.Default
-    private String chatType = "ROOMMATE";
-
-    @ManyToOne
-    @JoinColumn(name = "match_id")
-    private Match match;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "listing_id")
     private Listing listing;
 
     @ManyToOne
-    @JoinColumn(name = "landlord_id")
-    private User landlord;
+    @JoinColumn(name = "match_id")
+    private Match match;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
-    private List<Message> messages;
 }
