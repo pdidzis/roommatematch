@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import Layout from './components/common/Layout';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -26,42 +27,58 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
-              <DashboardPage />
+              <Layout>
+                <DashboardPage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/profile" element={
             <ProtectedRoute>
-              <ProfilePage />
+              <Layout>
+                <ProfilePage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/matches" element={
             <ProtectedRoute allowedRoles={['TENANT']}>
-              <MatchesPage />
+              <Layout>
+                <MatchesPage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/chat" element={
             <ProtectedRoute>
-              <ChatPage />
+              <Layout>
+                <ChatPage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/listings" element={
             <ProtectedRoute>
-              <ListingsPage />
+              <Layout>
+                <ListingsPage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/notifications" element={
             <ProtectedRoute>
-              <NotificationsPage />
+              <Layout>
+                <NotificationsPage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/offers" element={
             <ProtectedRoute>
-              <OffersPage />
+              <Layout>
+                <OffersPage />
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/admin" element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminPage />
+              <Layout>
+                <AdminPage />
+              </Layout>
             </ProtectedRoute>
           } />
         </Routes>
