@@ -13,7 +13,13 @@ import {
   MenuItem,
   Badge,
   Tooltip,
-  Divider
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
 import {
   Home,
@@ -24,7 +30,8 @@ import {
   LocalOffer,
   AdminPanelSettings,
   AccountCircle,
-  Logout
+  Logout,
+  Menu as MenuIcon
 } from '@mui/icons-material';
 
 const Navbar = ({ unreadCount = 0 }) => {
@@ -32,6 +39,7 @@ const Navbar = ({ unreadCount = 0 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -49,6 +57,7 @@ const Navbar = ({ unreadCount = 0 }) => {
 
   const handleNavigate = (path) => {
     handleMenuClose();
+    setDrawerOpen(false);
     navigate(path);
   };
 
@@ -97,118 +106,206 @@ const Navbar = ({ unreadCount = 0 }) => {
 
   const isActive = (path) => location.pathname === path;
 
+  const notificationTooltip =
+    unreadCount > 0
+      ? `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`
+      : 'No new notifications';
+
   return (
-    <AppBar
-      position="sticky"
-      sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        zIndex: 1100
-      }}
-    >
-      <Toolbar>
-        <Typography
-          variant="h6"
-          component={Link}
-          to="/dashboard"
-          sx={{
-            flexGrow: 0,
-            textDecoration: 'none',
-            color: 'white',
-            fontWeight: 'bold',
-            mr: 4
-          }}
-        >
-          RoommateMatch
-        </Typography>
+    <>
+      <AppBar
+        position="sticky"
+        sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          zIndex: 1100
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={() => setDrawerOpen(true)}
+            sx={{ mr: 1, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
 
-        <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
-          {filteredNavItems.map((item) => (
-            <Button
-              key={item.path}
-              component={Link}
-              to={item.path}
-              startIcon={item.icon}
-              sx={{
-                color: 'white',
-                backgroundColor: isActive(item.path)
-                  ? 'rgba(255,255,255,0.2)'
-                  : 'transparent',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.15)'
-                },
-                textTransform: 'none',
-                px: 2
-              }}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Tooltip title="Notifications">
-            <IconButton
-              color="inherit"
-              onClick={() => navigate('/notifications')}
-            >
-              <Badge badgeContent={unreadCount} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Account">
-            <IconButton
-              onClick={handleMenuOpen}
-              color="inherit"
-            >
-              {user?.profilePhotoUrl ? (
-                <Avatar
-                  src={user.profilePhotoUrl}
-                  sx={{ width: 32, height: 32 }}
-                />
-              ) : (
-                <AccountCircle />
-              )}
-            </IconButton>
-          </Tooltip>
-
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/dashboard"
+            sx={{
+              flexGrow: 0,
+              textDecoration: 'none',
+              color: 'white',
+              fontWeight: 'bold',
+              mr: 4,
+              cursor: 'pointer'
             }}
           >
-            <MenuItem disabled sx={{ opacity: '1 !important' }}>
-              <Box>
-                <Typography variant="body1" fontWeight="medium">
-                  {user?.firstName} {user?.lastName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {user?.email}
-                </Typography>
-              </Box>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={() => handleNavigate('/profile')}>
-              <AccountCircle sx={{ mr: 1 }} />
-              Profile
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <Logout sx={{ mr: 1 }} />
-              Logout
-            </MenuItem>
-          </Menu>
+            🏠 RoommateMatch
+          </Typography>
+
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: 'none', sm: 'flex' },
+              gap: 1
+            }}
+          >
+            {filteredNavItems.map((item) => (
+              <Button
+                key={item.path}
+                component={Link}
+                to={item.path}
+                startIcon={item.icon}
+                sx={{
+                  color: 'white',
+                  backgroundColor: isActive(item.path)
+                    ? 'rgba(255,255,255,0.2)'
+                    : 'transparent',
+                  borderBottom: isActive(item.path)
+                    ? '2px solid white'
+                    : '2px solid transparent',
+                  borderRadius: 1,
+                  transition: 'all 0.25s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.18)',
+                    transform: 'translateY(-1px)'
+                  },
+                  textTransform: 'none',
+                  px: 2
+                }}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </Box>
+
+          <Box sx={{ flexGrow: { xs: 1, sm: 0 } }} />
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Tooltip title={notificationTooltip}>
+              <IconButton
+                color="inherit"
+                onClick={() => navigate('/notifications')}
+                sx={{
+                  transition: 'transform 0.2s ease',
+                  '&:hover': { transform: 'scale(1.1)' }
+                }}
+              >
+                <Badge badgeContent={unreadCount} color="error">
+                  <Notifications />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Account">
+              <IconButton onClick={handleMenuOpen} color="inherit">
+                {user?.profilePhotoUrl ? (
+                  <Avatar
+                    src={user.profilePhotoUrl}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                ) : (
+                  <AccountCircle />
+                )}
+              </IconButton>
+            </Tooltip>
+
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right'
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right'
+              }}
+            >
+              <MenuItem disabled sx={{ opacity: '1 !important' }}>
+                <Box>
+                  <Typography variant="body1" fontWeight="medium">
+                    {user?.firstName} {user?.lastName}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {user?.email}
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={() => handleNavigate('/profile')}>
+                <AccountCircle sx={{ mr: 1 }} />
+                Profile
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Logout sx={{ mr: 1 }} />
+                Logout
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{ display: { sm: 'none' } }}
+      >
+        <Box sx={{ width: 260 }} role="presentation">
+          <Box
+            sx={{
+              p: 2,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white'
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              🏠 RoommateMatch
+            </Typography>
+            {user && (
+              <Typography variant="body2" sx={{ opacity: 0.85, mt: 0.5 }}>
+                {user.firstName} {user.lastName}
+              </Typography>
+            )}
+          </Box>
+          <List>
+            {filteredNavItems.map((item) => (
+              <ListItem key={item.path} disablePadding>
+                <ListItemButton
+                  selected={isActive(item.path)}
+                  onClick={() => handleNavigate(item.path)}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+            <Divider sx={{ my: 1 }} />
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => handleNavigate('/profile')}>
+                <ListItemIcon>
+                  <AccountCircle />
+                </ListItemIcon>
+                <ListItemText primary="Profile" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout />
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
+              </ListItemButton>
+            </ListItem>
+          </List>
         </Box>
-      </Toolbar>
-    </AppBar>
+      </Drawer>
+    </>
   );
 };
 
